@@ -139,6 +139,20 @@ for i in output.split("\n"):
             + " ".join(i[7:].split(" ")[1:])
             + bcolors.ENDC
         )
+    elif i.startswith("[ERROR]"):
+        print(
+            bcolors.WARNING
+            + i[:8]
+            + bcolors.OKBLUE
+            + bcolors.UNDERLINE
+            + i[8:].split(" ")[0]
+            + bcolors.ENDC
+            + bcolors.OKCYAN
+            + " "
+            + " ".join(i[8:].split(" ")[1:])
+            + bcolors.ENDC
+        )
+
     elif i.startswith("Starting audit") or i.startswith("Audit done"):
         print(bcolors.OKGREEN + i + bcolors.ENDC)
     elif i.startswith("Error"):
