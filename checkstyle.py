@@ -37,7 +37,7 @@ parser.add_argument(
     help="Path of the file to be checkstyled",
     action="store",
     required=True,
-    type=str,
+    type=str
 )
 
 parser.add_argument(
@@ -119,46 +119,57 @@ if args.jar == None:
 else:
     jar = args.jar
 
-checkstyle = str(pathlib.Path(args.checkstyle).absolute())
-javaFile = str(pathlib.Path(args.file).absolute())
-jarPath = str(pathlib.Path(jar).absolute())
 
-output = str(os.popen("java -jar %s -c %s %s" % (jarPath, checkstyle, javaFile)).read())
 
-for i in output.split("\n"):
-    if i.startswith("[WARN]"):
-        print(
-            bcolors.WARNING
-            + i[:7]
-            + bcolors.OKBLUE
-            + bcolors.UNDERLINE
-            + i[7:].split(" ")[0]
-            + bcolors.ENDC
-            + bcolors.OKCYAN
-            + " "
-            + " ".join(i[7:].split(" ")[1:])
-            + bcolors.ENDC
-        )
-    elif i.startswith("[ERROR]"):
-        print(
-            bcolors.WARNING
-            + i[:8]
-            + bcolors.OKBLUE
-            + bcolors.UNDERLINE
-            + i[8:].split(" ")[0]
-            + bcolors.ENDC
-            + bcolors.OKCYAN
-            + " "
-            + " ".join(i[8:].split(" ")[1:])
-            + bcolors.ENDC
-        )
+def checkstyle_file(file):
+    file = pathlib.Path(file)
+    if(file.is_dir()):
+        for f in file.iterdir():
+            checkstyle_file(f)
+        return
 
-    elif i.startswith("Starting audit") or i.startswith("Audit done"):
-        print(bcolors.OKGREEN + i + bcolors.ENDC)
-    elif i.startswith("Error"):
-        print(bcolors.FAIL + i + bcolors.ENDC)
-    else:
-        print(i)
+    print(bcolors.OKBLUE + "Auditing " + file.name + bcolors.ENDC)
+    checkstyle = str(pathlib.Path(args.checkstyle).absolute())
+    jarPath = str(pathlib.Path(jar).absolute())
+    javaFile = str(pathlib.Path(file).absolute())
 
+    output = str(os.popen("java -jar %s -c %s %s" % (jarPath, checkstyle, javaFile)).read())
+
+    for i in output.split("\n"):
+        if i.startswith("[WARN]"):
+            print(
+                bcolors.WARNING
+                + i[:7]
+                + bcolors.OKBLUE
+                + bcolors.UNDERLINE
+                + i[7:].split(" ")[0]
+                + bcolors.ENDC
+                + bcolors.OKCYAN
+                + " "
+                + " ".join(i[7:].split(" ")[1:])
+                + bcolors.ENDC
+            )
+        elif i.startswith("[ERROR]"):
+            print(
+                bcolors.WARNING
+                + i[:8]
+                + bcolors.OKBLUE
+                + bcolors.UNDERLINE
+                + i[8:].split(" ")[0]
+                + bcolors.ENDC
+                + bcolors.OKCYAN
+                + " "
+                + " ".join(i[8:].split(" ")[1:])
+                + bcolors.ENDC
+            )
+
+        elif i.startswith("Starting audit") or i.startswith("Audit done"):
+            print(bcolors.OKGREEN + i + bcolors.ENDC)
+        elif i.startswith("Error"):
+            print(bcolors.FAIL + i + bcolors.ENDC)
+        else:
+            print(i)
+
+path = pathlib.Path(args.file)
 # print(output)
 
